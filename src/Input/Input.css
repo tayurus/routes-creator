@@ -1,0 +1,24 @@
+.Input{
+    display: flex;
+    max-width: 300px;
+    padding: 15px;
+}
+
+.Input__field{
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    margin-right: 10px
+}
+
+.Input__button{
+    padding: 15px 30px;
+    background-color: tomato;
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    border: none;
+    border-radius: 10px;
+}
