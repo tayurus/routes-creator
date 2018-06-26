@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import {Input} from './Input/Input.js';
 import {List} from './List/List.js';
+import {Map} from './Map/Map.js';
 
 class App extends Component {
 
@@ -28,8 +29,11 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-          <Input handlerAdd={this.handlerAdd}/>
-          <List points={this.state.points} handlerDelete={this.handlerDelete}/>
+          <div>
+              <Input handlerAdd={this.handlerAdd}/>
+              <List points={this.state.points} handlerDelete={this.handlerDelete}/>
+          </div>
+          <Map/>
       </div>
     );
   }
