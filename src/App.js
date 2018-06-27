@@ -33,7 +33,7 @@ class App extends Component {
               <Input handlerAdd={this.handlerAdd}/>
               <List points={this.state.points} handlerDelete={this.handlerDelete}/>
           </div>
-          <Map/>
+          <Map points={this.state.points}/>
       </div>
     );
   }
