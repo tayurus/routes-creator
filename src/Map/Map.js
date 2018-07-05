@@ -1,57 +1,91 @@
 import React from "react";
+import './Map.css';
 export class Map extends React.Component {
     constructor(props) {
         super(props);
+        //добавляем компоненту пространтсов имен "google"
         this.google = window.google;
     }
 
+    // первый рендер карты
     componentDidMount() {
-        console.log("componentDidMount");
         this.map = new this.google.maps.Map(document.getElementById("map"), {
             zoom: 7,
             center: { lat: 31.85, lng: -87.65 }
         });
-
     }
 
-    shouldComponentUpdate() {
+    componentDidUpdate() {
+        //вновь перерисовываем карту
         let map = new this.google.maps.Map(document.getElementById("map"), {
             zoom: 7,
             center: { lat: 31.85, lng: -87.65 }
         });
+
+        //берем про-во имен google
         let google = this.google;
+
+        //эта штука для определения кординат по адресу
         var geocoder = new google.maps.Geocoder();
+
+        //если у нас пока только одна точка, то просто нарисуем для нее маркер
         if (this.props.points.length === 1) {
-            /*create marker for point*/
             codeAddress(this.props.points[0]);
+
         } else {
+            //в противном случае подготовим все нужное для построения маршрута
+
+            //сервис построения маршрута
             var directionsService = new google.maps.DirectionsService();
 
+            //сервис рисования маршрута
             var directionsDisplay = new google.maps.DirectionsRenderer({
                 draggable: true,
                 map: map
             });
 
+            // при измении маршрута:
+            directionsDisplay.addListener("directions_changed", () =>{
+                let direction = directionsDisplay.getDirections();
+                let newPoints = [];
+                // перебираем все "ноги" маршрута для перерисовки нового маршрута
+                direction.routes[0].legs.forEach(function(leg, legIndex){
+                    // если "нога" первая - берем и начальную и конечную точки
+                    if (legIndex == 0){
+                        newPoints.push(leg['start_address']);
+                        newPoints.push(leg['end_address']);
+                    }else
+                    // иначе - только последнюю
+                        newPoints.push(leg['end_address']);
+                })
+
+                // вызов "прокинутой" из App.js функции для обновления состояния маршрута
+                this.props.handlerChangeDirection(newPoints)
+            });
+
+            //промежуточные точки на случай, если маршрут состоит из более чем двух точек
             let wayPoints = [];
 
-            for (let i = 1; i <= this.props.points.length - 1; i++) {
+            //сформируем массив прмежуточных точек
+            for (let i = 1; i < this.props.points.length - 1; i++) {
                 wayPoints.push({ location: this.props.points[i] });
             }
 
+            //строим маршрут
             directionsService.route(
                 {
-                    origin: this.props.points[0],
-                    waypoints: wayPoints,
-                    destination: this.props.points[
+                    origin: this.props.points[0], //откуда
+                    waypoints: wayPoints, //через какие точки
+                    destination: this.props.points[ // куда
                         this.props.points.length - 1
                     ],
-                    travelMode: "DRIVING"
+                    travelMode: "WALKING" //считаем, что идем пешочком (а хотелось бы самолетом)
                 },
                 function(response, status) {
-                    if (status === "OK") {
+                    if (status === "OK") { //если получилось построить маршрут, то строим
                         directionsDisplay.setDirections(response);
-                        console.log(map.markers);
                     } else {
+                        //иначе - грустим
                         window.alert(
                             "Directions request failed due to " + status
                         );
@@ -60,7 +94,9 @@ export class Map extends React.Component {
             );
         }
 
+        //функция, для которой и обьявляли geocoder - преобразует адрес с человеческого языка в коориднаты, по которым можно нарисовать маркер
         function codeAddress(str) {
+            //рисует маркер
             function drawMarker(results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
                     var marker = new google.maps.Marker({
@@ -70,103 +106,14 @@ export class Map extends React.Component {
                     map.setCenter(results[0].geometry.location);
                 }
             }
+            //получаем координаты и рисуем с помощью drawMarker
             geocoder.geocode({ address: str }, drawMarker);
         }
-
-        // function initMap() {
-        //     var directionsService = new google.maps.DirectionsService();
-        //
-        //     var map = new google.maps.Map(document.getElementById("map"), {
-        //         zoom: 7,
-        //         center: { lat: 41.85, lng: -87.65 }
-        //     });
-        // }
-
-        // function codeAddress() {
-        //     map = new google.maps.Map(document.getElementById("map"), {
-        //         zoom: 7,
-        //         center: { lat: 41.85, lng: -87.65 }
-        //     });
-        //     console.log("codeAddress");
-        //     var address = document.getElementById("address").value;
-        //     geocoder.geocode({ address: address }, function(
-        //         results,
-        //         status
-        //     ) {
-        //         if (status == google.maps.GeocoderStatus.OK) {
-        //             map.setCenter(results[0].geometry.location);
-        //             var marker = new google.maps.Marker({
-        //                 map: map,
-        //                 position: results[0].geometry.location
-        //             });
-        //         } else {
-        //             console.log(
-        //                 "Geocode was not successful for the following reason: " +
-        //                     status
-        //             );
-        //         }
-        //     });
-        // }
-
-        //     document.getElementById("address").oninput = codeAddress;
-        //
-        //     var directionsDisplay = new google.maps.DirectionsRenderer({
-        //         draggable: true,
-        //         map: map
-        //     });
-        //
-        //     directionsDisplay.setMap(map);
-        //
-        //     var onChangeHandler = function() {
-        //         calculateAndDisplayRoute(directionsService, directionsDisplay);
-        //     };
-        //     document
-        //         .getElementById("start")
-        //         .addEventListener("change", onChangeHandler);
-        //     document
-        //         .getElementById("waypoint")
-        //         .addEventListener("change", onChangeHandler);
-        //     document
-        //         .getElementById("end")
-        //         .addEventListener("change", onChangeHandler);
-        // }
-        //
-        // function calculateAndDisplayRoute(
-        //     directionsService,
-        //     directionsDisplay
-        // ) {
-
-        // }
-        // initMap();
     }
 
     render() {
         return (
-            <div>
-                <input type="text" id="address" onChange="" />
-                <b>Start: </b>
-                <select id="start">
-                    <option value="Москва, ул Пушкина">Москва</option>
-                    <option value="Волгоград, ул Ополченская">Волгоград</option>
-                    <option value="Саратов, ул Ленина">Саратов</option>
-                </select>
-
-                <select id="waypoint">
-                    <option value="Самара">Самара</option>
-                    <option value="Салехард">Салехард</option>
-                    <option value="Омск">Омск</option>
-                </select>
-
-                <select id="end">
-                    <option value="Владивосток">Владивосток</option>
-                    <option value="Новосибирск">Новосибирск</option>
-                    <option value="Барнаул">Барнаул</option>
-                </select>
-
-                <div style={{ width: "400px", height: "400px" }} id="map">
-                    <span />
-                </div>
-            </div>
+            <div className="Map" id="map"></div>
         );
     }
 }

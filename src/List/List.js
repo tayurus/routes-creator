@@ -1,20 +1,17 @@
 import React from "react";
-import {Point} from '../Point/Point'
+import { Point } from "../Point/Point";
 
-export class List extends React.Component{
-    constructor(props){
-        super(props);
-
-
-    }
-
-    render(){
-        return (
-            <div className="List">
-                {
-                    this.props.points.map((address, i) => <Point address={address} id={i} handlerDelete={this.props.handlerDelete}/>)
-                }
-            </div>
-        )
-    }
+//компонент-список точек маршрута
+export const List = (props) => {
+    return (
+        <div className="List">
+            {props.points.map((address, i) => (
+                <Point
+                    address={address}
+                    id={i}
+                    handlerDeletePoint={props.handlerDeletePoint}
+                />
+            ))}
+        </div>
+    );
 }

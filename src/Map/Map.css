@@ -1,0 +1,11 @@
+.Map{
+    width: 400px;
+    height: 400px;
+}
+
+@media (max-width:620px),(max-device-width:620px) {
+    .Map{
+        width: 300px;
+        height: 300px;
+    }
+}

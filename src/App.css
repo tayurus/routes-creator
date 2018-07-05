@@ -1,4 +1,14 @@
 .App{
     display: flex;
     align-items: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@media (max-width:620px),(max-device-width:620px) {
+    .App{
+        flex-direction: column-reverse;
+    }
 }
