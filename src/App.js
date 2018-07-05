@@ -11,6 +11,7 @@ class App extends Component {
         this.handlerAddPoint = this.handlerAddPoint.bind(this);
         this.handlerDeletePoint = this.handlerDeletePoint.bind(this);
         this.handlerChangeDirection = this.handlerChangeDirection.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
 
         //начальное состояние - точек нет
         this.state = { points: [] };
@@ -38,21 +39,25 @@ class App extends Component {
         let updateState = false;
 
         //проверим, есть ли новые точки в newPoints
-        currentPoints.forEach(function(point){
-            if (!newPoints.includes(point))
-                updateState = true;
-        })
+        currentPoints.forEach(function(point) {
+            if (!newPoints.includes(point)) updateState = true;
+        });
 
         /// если есть = обновим состояние
-        if (updateState)
-            this.setState({ points: newPoints });
+        if (updateState) this.setState({ points: newPoints });
+    }
+
+    handleKeyPress(e, phrase) {
+        if (e.key === "Enter") {
+            this.handlerAddPoint(phrase)
+        }
     }
 
     render() {
         return (
             <div className="App">
                 <div>
-                    <Input handlerAddPoint={this.handlerAddPoint} />
+                    <Input handleKeyPress={this.handleKeyPress} handlerAddPoint={this.handlerAddPoint} />
                     <List
                         points={this.state.points}
                         handlerDeletePoint={this.handlerDeletePoint}

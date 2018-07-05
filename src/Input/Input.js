@@ -17,6 +17,7 @@ export class Input extends React.Component {
                     className="Input__field"
                     placeholder="Type address here..."
                     ref="point"
+                    onKeyPress={(e) => this.props.handleKeyPress(e,this.refs.point.value)}
                 />
                 <button
                     className="Input__button"
